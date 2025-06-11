@@ -32,12 +32,12 @@ export class LayerRecording extends LayerAbstract {
 
         this.p5.keyPressed = () => {
 
-            if ( this.p5.key === "ArrowDown" && !this.isKeyDown ) {
+            if ( this.p5.key === "a" && !this.isKeyDown ) {
                 this.isKeyDown = true;
                 this.recordingStart();
             }
 
-            if ( this.p5.key === "ArrowUp" && !this.isKeyDown ) {
+            if ( this.p5.key === "b" && !this.isKeyDown ) {
                 this.isKeyDown = true;
                 this.playingStart();
             }
