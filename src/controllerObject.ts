@@ -31,4 +31,13 @@ export abstract class ControlledObject {
         );
     }
 
+    debug(
+        label: string,
+        value: string|number|boolean
+    ) {
+        if (this.controller.debug) {
+            this.controller.addDebug( this, label, value );
+        }
+    }
+
 }

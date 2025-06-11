@@ -53,6 +53,8 @@ export class LayerRecording extends LayerAbstract {
 
     public processStream(): void {
 
+        this.debug( "Buffer size", this.buffer.length );
+
         if ( this.mode === RecordingMode.RECORDING ) {
             this.drawInternal(this.capture.video);
 

@@ -7,14 +7,19 @@ const sketch = ( p5: P5 ) => {
 
     let controller: Controller;
 
+    let shader: P5.Shader|undefined = undefined;
+
     p5.setup = () => {
 
-        const canvas = p5.createCanvas( window.innerWidth, window.innerHeight );
+        p5.frameRate( 30 );
+
+        const canvas = p5.createCanvas( window.innerWidth, window.innerHeight, p5.WEBGL );
         canvas.parent( "app" );
 
         p5.background( "black" );
 
         controller = new Controller( p5 );
+        controller.setDebug( true );
 
     }
 

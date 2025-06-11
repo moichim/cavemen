@@ -32,10 +32,22 @@ export class Layers extends ControlledObject {
         return this._combined;
     }
 
+    private shader: P5.Shader | undefined;
+
     constructor(
         controller: Controller
     ) {
         super(controller);
+
+        this.p5.loadShader(
+            "/shaders/smoke.vert",
+            "/shaders/smoke.frag",
+            result => {
+                this.shader = result;
+                this.log( this.shader );
+            }
+        );
+
     }
 
 
@@ -85,7 +97,25 @@ export class Layers extends ControlledObject {
 
     draw() {
         if ( this.ready === true ) {
-            this.p5.image( this.combined, 0, 0, this.mapping.output.width, this.mapping.output.height );
+
+            if ( this.shader !== undefined ) {
+
+                // this.log( "shader", this.shader );
+
+                this.p5.shader( this.shader );
+
+                this.shader.setUniform( "tex0", this.combined );
+                this.shader.setUniform( "time", this.p5.millis() / 1000 );
+                this.p5.rect( 0, 0, this.mapping.output.width, this.mapping.output.height );
+                this.p5.resetShader();
+
+                this.debug( "shader", "render" );
+
+            } else {
+                this.p5.image( this.combined, 0, 0, this.mapping.output.width, this.mapping.output.height );
+                this.debug( "image", "render" );
+            }
+
         }
     }
 
