@@ -3,7 +3,6 @@ import { Capture } from "./capture";
 import { Mapping } from "./mapping";
 import { Layers } from "./layers";
 import { ControlledObject } from "./controllerObject";
-import { fip } from "./FIP";
 
 export class Controller {
 

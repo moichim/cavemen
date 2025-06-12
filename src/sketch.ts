@@ -7,8 +7,6 @@ const sketch = ( p5: P5 ) => {
 
     let controller: Controller;
 
-    let shader: P5.Shader|undefined = undefined;
-
     p5.setup = () => {
 
         p5.frameRate( 30 );

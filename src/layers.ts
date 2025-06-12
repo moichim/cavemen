@@ -32,21 +32,10 @@ export class Layers extends ControlledObject {
         return this._combined;
     }
 
-    private shader: P5.Shader | undefined;
-
     constructor(
         controller: Controller
     ) {
         super(controller);
-
-        this.p5.loadShader(
-            "/shaders/mist.vert",
-            "/shaders/mist.frag",
-            result => {
-                this.shader = result;
-                // this.log("shader loaded", this.shader);
-            }
-        );
 
     }
 
