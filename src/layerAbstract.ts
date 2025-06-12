@@ -71,7 +71,7 @@ export abstract class LayerAbstract extends ControlledObject {
 
             this.layers.combined.blendMode( this.p5.ADD );
 
-            this.layers.combined.tint( this.outputTint );
+            // this.layers.combined.tint( this.outputTint );
 
             this.layers.combined.image( this.getCurrentImage(), 0, 0, this.width, this.height );
         }

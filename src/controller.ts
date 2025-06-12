@@ -15,19 +15,26 @@ export class Controller {
     protected _debug: boolean = false;
     public get debug() { return this._debug; }
 
-    constructor( 
-        public readonly p5: P5 
+    protected font!: P5.Font;
+
+    constructor(
+        public readonly p5: P5
     ) {
-        this.capture = new Capture( this );
-        this.mapping = new Mapping( this );
-        this.layers = new Layers( this );
+        this.capture = new Capture(this);
+        this.mapping = new Mapping(this);
+        this.layers = new Layers(this);
+
+        this.p5.loadFont("/fonts/Roboto-Medium.ttf", (font: P5.Font) => {
+            this.font = font;
+        });
+
     }
 
     update() {
 
-        if ( this._debug ) {
-            this.addDebug( this, "Frame rate", this.p5.frameRate() );
-            this.addDebug( this, "Frame count", this.p5.frameCount );
+        if (this._debug) {
+            this.addDebug(this, "Frame rate", this.p5.frameRate());
+            this.addDebug(this, "Frame count", this.p5.frameCount);
         }
 
         this.layers.update();
@@ -36,24 +43,34 @@ export class Controller {
     }
 
     draw() {
+
+        this.p5.resetMatrix();
+        this.p5.ortho();
+        this.p5.translate(-this.p5.width / 2, -this.p5.height / 2);
+
+
         this.layers.draw();
 
-        if ( this._debug ) {
+        if (this._debug) {
             this.drawDebug();
         }
     }
 
-    protected debugBuffer: Map<string,{ component: Controller|ControlledObject, value: number|string|boolean }> = new Map;
+    protected debugBuffer: Map<string, { component: Controller | ControlledObject, value: number | string | boolean }> = new Map;
 
     public addDebug(
-        component: Controller|ControlledObject,
+        component: Controller | ControlledObject,
         label: string,
-        value: number|string|boolean
+        value: number | string | boolean
     ) {
-        this.debugBuffer.set( label, { component, value } );
+        this.debugBuffer.set(label, { component, value });
     }
 
     protected drawDebug() {
+
+        if ( this.font === undefined ) {
+            return;
+        }
 
 
         const numItems = this.debugBuffer.size;
@@ -62,30 +79,38 @@ export class Controller {
         const height = numItems * 20;
 
 
-        this.p5.blendMode( this.p5.BLEND );
+        this.p5.blendMode(this.p5.BLEND);
 
         this.p5.push();
 
-        this.p5.translate( 10, 10 );
+        this.p5.resetMatrix();
+        this.p5.ortho();
+        this.p5.translate(-this.p5.width / 2, -this.p5.height / 2);
+
+        this.p5.translate(10, 10);
 
         this.p5.fill(255);
-        this.p5.rect( 0, 0, 500 + ( gap * 2 ), height + ( gap * 2 ) );
+        this.p5.rect(0, 0, 500 + (gap * 2), height + (gap * 2));
 
-        Array.from( this.debugBuffer.entries() ).map( ( [label, { component, value } ], index ) => {
+        this.p5.textFont(this.font);
+        this.p5.textAlign(this.p5.LEFT, this.p5.BOTTOM);
+        this.p5.textSize(rowHeight / 1.5);
+
+        Array.from(this.debugBuffer.entries()).map(([label, { component, value }], index) => {
 
             const color = component instanceof ControlledObject
-                ? ( component.constructor as typeof ControlledObject).color
+                ? (component.constructor as typeof ControlledObject).color
                 : "black";
             const className = component.constructor.name;
             const text = `${className} > ${label} = ${value.toString()}`;
-            const top = gap + rowHeight * ( index + 1 );
+            const top = gap + rowHeight * (index + 1);
 
-            this.p5.fill( color );
-            this.p5.textSize( rowHeight / 1.5 );
+            this.p5.fill(color);
 
-            this.p5.text( text, gap, top );
 
-        } );
+            this.p5.text(text, gap, top);
+
+        });
 
         this.p5.pop();
 

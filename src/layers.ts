@@ -13,21 +13,21 @@ export class Layers extends ControlledObject {
 
     private _recording!: LayerRecording;
     public get recording() {
-        if ( !this._recording ) throw new Error( "trying to access the recording before its initialisation" );
+        if (!this._recording) throw new Error("trying to access the recording before its initialisation");
         return this._recording;
     }
 
 
     private _stream!: LayerStream;
     public get stream() {
-        if ( !this._stream ) throw new Error( "trying to access the stream before its initialisation" );
+        if (!this._stream) throw new Error("trying to access the stream before its initialisation");
         return this._stream;
     }
 
     private _combined!: P5.Graphics;
     public get combined() {
         if (!this._combined) {
-            throw new Error( "Accessing combined canvas before its initialisation" );
+            throw new Error("Accessing combined canvas before its initialisation");
         }
         return this._combined;
     }
@@ -40,11 +40,11 @@ export class Layers extends ControlledObject {
         super(controller);
 
         this.p5.loadShader(
-            "/shaders/smoke.vert",
-            "/shaders/smoke.frag",
+            "/shaders/mist.vert",
+            "/shaders/mist.frag",
             result => {
                 this.shader = result;
-                this.log( this.shader );
+                this.log(this.shader);
             }
         );
 
@@ -56,7 +56,7 @@ export class Layers extends ControlledObject {
         outputWidth: number
     ) {
 
-        if ( this._ready ) {
+        if (this._ready) {
             return;
         }
 
@@ -65,7 +65,7 @@ export class Layers extends ControlledObject {
         );
 
         this._recording = new LayerRecording(this.controller, "red", inputWidth, outputWidth);
-        this._stream = new LayerStream(this.controller, "blue", inputWidth, outputWidth );
+        this._stream = new LayerStream(this.controller, "blue", inputWidth, outputWidth);
 
         this._ready = true;
 
@@ -75,19 +75,19 @@ export class Layers extends ControlledObject {
 
 
     update() {
-        if ( this.ready === true ) {
+        if (this.ready === true) {
             this.stream.processStream();
             this.recording.processStream();
         }
     }
 
     combine() {
-        if ( this.ready === true ) {
+        if (this.ready === true) {
 
-            this.combined.blendMode( this.p5.BLEND );
+            this.combined.blendMode(this.p5.BLEND);
 
             this.combined.fill(0);
-            this.combined.rect(0,0,this.combined.width, this.combined.height);
+            this.combined.rect(0, 0, this.combined.width, this.combined.height);
 
             this.stream.drawToCombined();
             this.recording.drawToCombined();
@@ -96,24 +96,26 @@ export class Layers extends ControlledObject {
     }
 
     draw() {
-        if ( this.ready === true ) {
+        if (this.ready === true) {
 
-            if ( this.shader !== undefined ) {
+            if (this.shader !== undefined) {
 
                 // this.log( "shader", this.shader );
 
-                this.p5.shader( this.shader );
+                this.p5.shader(this.shader);
 
-                this.shader.setUniform( "tex0", this.combined );
-                this.shader.setUniform( "time", this.p5.millis() / 1000 );
-                this.p5.rect( 0, 0, this.mapping.output.width, this.mapping.output.height );
+                this.shader.setUniform("tex0", this.combined); // nebo video/frame
+                this.shader.setUniform("time", this.p5.millis() / 1000.0);
+                this.shader.setUniform("resolution", [this.p5.width, this.p5.height]);
+
+                this.p5.rect(0, 0, this.mapping.output.width, this.mapping.output.height);
                 this.p5.resetShader();
 
-                this.debug( "shader", "render" );
+                this.debug("shader", "render");
 
             } else {
-                this.p5.image( this.combined, 0, 0, this.mapping.output.width, this.mapping.output.height );
-                this.debug( "image", "render" );
+                this.p5.image(this.combined, 0, 0, this.mapping.output.width, this.mapping.output.height);
+                this.debug("image", "render");
             }
 
         }
