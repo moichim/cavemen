@@ -1,3 +1,4 @@
+import P5 from "p5";
 import type { Controller } from "./controller";
 import { ControlledObject } from "./controllerObject";
 
@@ -36,6 +37,27 @@ export class Mapping extends ControlledObject {
     ) {
         this._input = { width, height };
         this.log( "Input resolution set" );
+    }
+
+    public xInputToOutput(
+        xInput: number
+    ) {
+        return xInput * this.output.width / this.input.width;
+    }
+
+    public yInputToOutput(
+        yInput: number
+    ) {
+        return yInput * this.output.height / this.input.height;
+    }
+
+    public vectorInputToOutput(
+        vectorInput: P5.Vector
+    ) {
+        return new P5.Vector(
+            this.xInputToOutput(vectorInput.x),
+            this.yInputToOutput(vectorInput.y)
+        );
     }
 
 

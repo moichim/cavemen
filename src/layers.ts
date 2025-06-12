@@ -44,7 +44,7 @@ export class Layers extends ControlledObject {
             "/shaders/mist.frag",
             result => {
                 this.shader = result;
-                this.log(this.shader);
+                // this.log("shader loaded", this.shader);
             }
         );
 
@@ -61,11 +61,11 @@ export class Layers extends ControlledObject {
         }
 
         this._combined = this.p5.createGraphics(
-            inputWidth, outputWidth
+            this.mapping.output.width, this.mapping.output.height
         );
 
         this._recording = new LayerRecording(this.controller, "red", inputWidth, outputWidth);
-        this._stream = new LayerStream(this.controller, "blue", inputWidth, outputWidth);
+        this._stream = new LayerStream(this.controller, "cyan", inputWidth, outputWidth);
 
         this._ready = true;
 
@@ -90,7 +90,7 @@ export class Layers extends ControlledObject {
             this.combined.rect(0, 0, this.combined.width, this.combined.height);
 
             this.stream.drawToCombined();
-            this.recording.drawToCombined();
+            // this.recording.drawToCombined();
 
         }
     }
@@ -98,25 +98,13 @@ export class Layers extends ControlledObject {
     draw() {
         if (this.ready === true) {
 
-            if (this.shader !== undefined) {
-
-                // this.log( "shader", this.shader );
-
-                this.p5.shader(this.shader);
-
-                this.shader.setUniform("tex0", this.combined); // nebo video/frame
-                this.shader.setUniform("time", this.p5.millis() / 1000.0);
-                this.shader.setUniform("resolution", [this.p5.width, this.p5.height]);
-
-                this.p5.rect(0, 0, this.mapping.output.width, this.mapping.output.height);
-                this.p5.resetShader();
-
-                this.debug("shader", "render");
-
-            } else {
-                this.p5.image(this.combined, 0, 0, this.mapping.output.width, this.mapping.output.height);
-                this.debug("image", "render");
-            }
+            this.p5.image(
+                this.combined, 
+                -this.mapping.output.width / 2,
+                -this.mapping.output.height / 2, 
+                this.mapping.output.width, 
+                this.mapping.output.height
+            );
 
         }
     }

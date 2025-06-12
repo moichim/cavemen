@@ -16,7 +16,7 @@ export class LayerRecording extends LayerAbstract {
 
     protected buffer: P5.Image[] = [];
 
-    protected maxBufferSize: number = 10 * 60;
+    protected maxBufferSize: number = 3 * 60;
 
     protected isKeyDown: boolean = false;
 

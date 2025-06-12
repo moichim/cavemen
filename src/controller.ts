@@ -3,6 +3,7 @@ import { Capture } from "./capture";
 import { Mapping } from "./mapping";
 import { Layers } from "./layers";
 import { ControlledObject } from "./controllerObject";
+import { fip } from "./FIP";
 
 export class Controller {
 
@@ -17,6 +18,10 @@ export class Controller {
 
     protected font!: P5.Font;
 
+    public shader!: P5.Shader;
+
+    
+
     constructor(
         public readonly p5: P5
     ) {
@@ -27,6 +32,15 @@ export class Controller {
         this.p5.loadFont("/fonts/Roboto-Medium.ttf", (font: P5.Font) => {
             this.font = font;
         });
+
+        this.shader = this.p5.loadShader(
+            "/shaders/cave.vert",
+            "/shaders/cave.frag",
+            (result: P5.Shader) => {
+                this.shader = result;
+                console.log("Shader loaded", this.shader);
+            }
+        );
 
     }
 
@@ -44,9 +58,13 @@ export class Controller {
 
     draw() {
 
-        this.p5.resetMatrix();
-        this.p5.ortho();
-        this.p5.translate(-this.p5.width / 2, -this.p5.height / 2);
+        // this.p5.resetMatrix();
+        // this.p5.ortho();
+        // this.p5.translate(-this.p5.width / 2, -this.p5.height / 2);
+
+        this.p5.imageMode(this.p5.CORNER);
+
+        this.p5.rectMode(this.p5.CORNER);
 
 
         this.layers.draw();
@@ -116,7 +134,7 @@ export class Controller {
 
         this.debugBuffer.clear();
 
-        this.capture.draw();
+        // this.capture.draw();
 
     }
 

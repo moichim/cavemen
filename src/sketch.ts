@@ -19,7 +19,7 @@ const sketch = ( p5: P5 ) => {
         p5.background( "black" );
 
         controller = new Controller( p5 );
-        controller.setDebug( true );
+        // controller.setDebug( true );
 
     }
 
