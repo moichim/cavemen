@@ -16,28 +16,33 @@ export class LayerRecording extends LayerAbstract {
 
     protected buffer: P5.Image[] = [];
 
-    protected maxBufferSize: number = 3 * 60;
+    protected maxBufferSize: number = 1 * 30;
 
     protected isKeyDown: boolean = false;
 
     protected pointer: number = 0;
 
+    /** Current stream */
+    public graphics!: P5.Graphics;
+
     constructor(
         controller: Controller,
-        outputTint: string,
+        outputTint: P5.Color,
         width: number,
         height: number
     ) {
         super(controller, outputTint, width, height);
 
+        this.graphics = this.p5.createGraphics( width, height );
+
         this.p5.keyPressed = () => {
 
-            if ( this.p5.key === "a" && !this.isKeyDown ) {
+            if (this.p5.key === "a" && !this.isKeyDown) {
                 this.isKeyDown = true;
                 this.recordingStart();
             }
 
-            if ( this.p5.key === "b" && !this.isKeyDown ) {
+            if (this.p5.key === "b" && !this.isKeyDown) {
                 this.isKeyDown = true;
                 this.playingStart();
             }
@@ -51,18 +56,19 @@ export class LayerRecording extends LayerAbstract {
     }
 
 
-    public processStream(): void {
+    public update(): void {
 
-        this.debug( "Buffer size", this.buffer.length );
+        this.debug( "buffer size", this.buffer.length );
 
-        if ( this.mode === RecordingMode.RECORDING ) {
-            this.drawInternal(this.capture.video);
+        if (this.mode === RecordingMode.RECORDING) {
+
+            this.graphics.image( this.capture.video, 0, 0, this.graphics.width, this.graphics.height );
 
             // Nyní se z graphics uloží obraz do bufferu
-            const img = this.graphics.get( 0, 0, this.graphics.width, this.graphics.height );
-            this.buffer.push( img );
+            const img = this.graphics.get(0, 0, this.graphics.width, this.graphics.height);
+            this.buffer.push(img);
 
-            if ( this.buffer.length >= this.maxBufferSize ) {
+            if (this.buffer.length >= this.maxBufferSize) {
                 this.recordingStop();
             }
 
@@ -70,73 +76,73 @@ export class LayerRecording extends LayerAbstract {
 
     }
 
-    public getCurrentImage() {
+    public doRender() {
 
-        if ( this.mode === RecordingMode.IDLE ) {
-            return this.black;
-        } else if ( this.mode === RecordingMode.RECORDING ) {
-            return this.graphics;
-        } else if ( this.mode === RecordingMode.PLAYING ) {
+        this.renderInputToOutput(this.getCurrentInput());
 
-            const result = this.buffer[ this.pointer ];
-            
-            this.pointer++;
+    }
 
-            if ( this.pointer >= this.buffer.length ) {
-                this.playingEnd();
-            }
 
-            return result;
+    protected getCurrentInput(): P5.Image | P5.Element {
 
+        switch (this.mode) {
+            case RecordingMode.IDLE:
+                return this.black;
+            case RecordingMode.RECORDING:
+                return this.capture.video;
+            case RecordingMode.PLAYING:
+                const result = this.buffer[this.pointer];
+                if (this.pointer < this.buffer.length - 1) {
+                    this.pointer++;
+                } else {
+                    this.recordingStop();
+                }
+                return result;
         }
 
-        return this.black;
     }
 
 
     public recordingStart() {
 
-        if ( this.mode !== RecordingMode.RECORDING ) {
+        if (this.mode !== RecordingMode.RECORDING) {
 
             this.mode = RecordingMode.RECORDING;
             this.buffer.length = 0;
 
             this.layers.stream.setShow(false);
 
-            this.log( "recording started" );
-
+            this.log("recording started");
 
         } else {
-            this.log( "Recording already started..." );
+            this.log("Recording already started...");
         }
 
     }
+
 
     public recordingStop() {
         this.mode = RecordingMode.IDLE;
         this.layers.stream.setShow(true);
-        this.log( "Recording ended" );
+        this.log("Recording ended");
     }
+
 
     public playingStart() {
 
-        if ( this.buffer.length > 0 && this.mode === RecordingMode.IDLE ) {
+        if (this.buffer.length > 0 && this.mode === RecordingMode.IDLE) {
             this.mode = RecordingMode.PLAYING;
             this.pointer = 0;
-            this.log( "Playback started" );
-            // this.layers.stream.setShow(false);
+            this.log("Playback started");
         }
 
     }
 
+
     public playingEnd() {
         this.mode = RecordingMode.IDLE;
-        this.log( "Playback ended" );
-        // this.layers.stream.setShow(true);
+        this.log("Playback ended");
     }
-
-
-
 
 
 }

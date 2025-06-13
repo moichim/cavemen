@@ -17,6 +17,8 @@ export class Layers extends ControlledObject {
         return this._recording;
     }
 
+    public readonly black: P5.Graphics;
+
 
     private _stream!: LayerStream;
     public get stream() {
@@ -36,7 +38,12 @@ export class Layers extends ControlledObject {
         controller: Controller
     ) {
         super(controller);
-
+        this.black = this.p5.createGraphics(
+            this.mapping.output.width, 
+            this.mapping.output.height
+        );
+        this.black.background(0);
+        // this.black.id( "black" );
     }
 
 
@@ -50,11 +57,13 @@ export class Layers extends ControlledObject {
         }
 
         this._combined = this.p5.createGraphics(
-            this.mapping.output.width, this.mapping.output.height
+            this.mapping.output.width, 
+            this.mapping.output.height,
+            this.p5.WEBGL
         );
 
-        this._recording = new LayerRecording(this.controller, "red", inputWidth, outputWidth);
-        this._stream = new LayerStream(this.controller, "cyan", inputWidth, outputWidth);
+        this._recording = new LayerRecording(this.controller, this.p5.color( 255, 255, 0 ), inputWidth, outputWidth);
+        this._stream = new LayerStream(this.controller, this.p5.color( 0, 255, 255 ), inputWidth, outputWidth);
 
         this._ready = true;
 
@@ -65,8 +74,8 @@ export class Layers extends ControlledObject {
 
     update() {
         if (this.ready === true) {
-            this.stream.processStream();
-            this.recording.processStream();
+            this.stream.update();
+            this.recording.update();
         }
     }
 
@@ -74,12 +83,31 @@ export class Layers extends ControlledObject {
         if (this.ready === true) {
 
             this.combined.blendMode(this.p5.BLEND);
+            this.combined.imageMode( this.p5.CENTER );
+            this.combined.rectMode( this.p5.CENTER );
 
-            this.combined.fill(0);
-            this.combined.rect(0, 0, this.combined.width, this.combined.height);
+            // Render the overlay over the previous frame
+            this.combined.blendMode( this.p5.MULTIPLY );
+            this.combined.fill( 0, 50 );
+            this.combined.rect( 0, 0, this.combined.width, this.combined.height );
 
+            // Blur the previous state
+            this.combined.filter( this.p5.BLUR, 3 );
+
+            // Start drawing layers
+
+            
+            this.stream.doRender();
+            this.recording.doRender();
+
+            const renderMode = this.p5.SCREEN;
+            
+            this.combined.blendMode( renderMode );
             this.stream.drawToCombined();
-            // this.recording.drawToCombined();
+            this.combined.blendMode( renderMode );
+            this.recording.drawToCombined();
+
+            // this.combined.pop();
 
         }
     }
